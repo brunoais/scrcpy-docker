@@ -1,3 +1,18 @@
-/.1920x1080
 /.bak/
+/x11docker/*
+# scrcpy repository or a symlink for it
 /scrcpy
+
+# File used as source for variables for the local scripts
+/.source.sh
+
+# Running "extension hooks" for the run script
+/containerScripts/after_compile.sh
+/containerScripts/before_connect.sh
+/containerScripts/before_starting.sh
+
+# So you can have your own files with alternative ways of running without worry
+..*
+/myScripts/*
+/my.*
+/*/my.*

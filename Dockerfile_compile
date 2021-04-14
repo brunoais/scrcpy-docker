@@ -1,0 +1,38 @@
+#syntax=docker/dockerfile:1.2
+
+ARG PART_1_TAG
+
+FROM $PART_1_TAG AS scrcpyCompile
+
+ARG USER_NAME
+ARG USER_ID
+ARG HIST_COMMAND="run.sh"
+
+SHELL ["/bin/bash", "-c"]
+
+ARG COMPILE_SERVER=
+
+USER 0
+RUN mkdir /scrcpyBuild
+WORKDIR /scrcpyBuild
+RUN chown $USER_NAME .
+COPY --chown="$USER_NAME" . .
+RUN rm -fR x
+
+ENV COMPILED_AT=/scrcpyBuild/x
+
+RUN runuser -u $USER_NAME -- meson "$COMPILED_AT" --buildtype release --strip -Db_lto=true \
+			$( [[ -z "$COMPILE_SERVER" ]] && echo '-Dprebuilt_server=/data/scrcpy-server' )
+RUN runuser -u $USER_NAME -- ninja -C"$COMPILED_AT"
+
+RUN echo "$HIST_COMMAND" >> "/home/$USER_NAME/.bash_history"
+RUN echo "$HIST_COMMAND" >> "/root/.bash_history"
+
+USER $USER_NAME
+
+
+SHELL ["/bin/bash", "-ic"]
+ENTRYPOINT ["run.sh"]
+CMD ["--compile"]
+
+
