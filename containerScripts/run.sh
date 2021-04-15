@@ -17,7 +17,9 @@ while [[ $# -gt 0 ]]; do
 			shift # past param
 		;;
 		bash)   # jump to bash
-			shift # past argument
+			BASH_DROP=1
+			shift # go past bash
+			break # break out
 		;;
 		*)    # unknown option
 			POSITIONAL+=("$1") # send it to next program (bash or scrcpy)
@@ -35,9 +37,7 @@ if [[ $ARG_COMPILE ]] ; then
 	which "after_compile.sh" > /dev/null && . after_compile.sh
 fi
 
-if [[ b"${POSITIONAL[0]}" == b'bash' ]] || [[ b"${POSITIONAL[1]}" == b'bash' ]]; then
-	exec bash "$@"
-fi
+[[ $BASH_DROP ]] && exec bash "$@"
 
 which "before_connect.sh" > /dev/null && . before_connect.sh
 
