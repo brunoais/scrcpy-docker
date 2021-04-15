@@ -1,11 +1,13 @@
  #!/usr/bin/env bash
 
 function test_device_connected () {
-	adb devices | grep -E "^$DEVICE_HOST\s+device"
+	adb devices | grep -E "^$DEVICE_SERIAL\s+device" || \
+		adb devices | grep -E "^$DEVICE_HOST\s+device"
 }
 
 function connect () {
-	adb connect "$DEVICE_HOST" && \
+	(test_device_connected ||
+	adb connect "$DEVICE_HOST") && \
 	if ! timeout --foreground 20s adb wait-for-any-device; then
 		echo "Device not found in 20s. Did you fail to accept?"
 		adb disconnect 2> /dev/null
@@ -20,3 +22,4 @@ function connect () {
 export DEVICE_IP=${DEVICE_IP}
 export DEVICE_PORT=${DEVICE_PORT:-5555}
 export DEVICE_HOST=${DEVICE_HOST:-"$DEVICE_IP:$DEVICE_PORT"}
+export DEVICE_SERIAL=${DEVICE_SERIAL:-"$DEVICE_IP:$DEVICE_PORT"}
