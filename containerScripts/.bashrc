@@ -23,3 +23,6 @@ export DEVICE_IP=${DEVICE_IP}
 export DEVICE_PORT=${DEVICE_PORT:-5555}
 export DEVICE_HOST=${DEVICE_HOST:-"$DEVICE_IP:$DEVICE_PORT"}
 export DEVICE_SERIAL=${DEVICE_SERIAL:-"$DEVICE_IP:$DEVICE_PORT"}
+
+
+[ -f ~/.bash_aliases ] && . ~/.bash_aliases

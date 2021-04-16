@@ -16,3 +16,4 @@
 /myScripts/*
 /my.*
 /*/my.*
+/containerScripts/.bash_aliases
