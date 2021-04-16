@@ -1,8 +1,16 @@
 #syntax=docker/dockerfile:1.2
 
+
 FROM androidsdk/android-30 AS androidSDK
 
-ENTRYPOINT ""
+
+ENTRYPOINT "bash"
+
+RUN chown -R android /opt/android-sdk-linux
+# A to accept all file replace
+RUN echo -e 'A\n' | runuser -u android android-sdk-update.sh built-in
+
+RUN userdel android
 
 FROM androidSDK AS scrcpyCompilePrepare
 
@@ -23,8 +31,9 @@ ARG HIST_COMMAND="run.sh --compile"
 VOLUME /scrcpy
 
 RUN useradd --uid $USER_ID -oms /bin/bash $USER_NAME
-RUN chown -R $USER_NAME /scrcpy 
+RUN chown $USER_NAME /scrcpy ; 
 RUN mkdir /data && chown -R $USER_NAME /data
+
 USER $USER_NAME
 WORKDIR /scrcpy
 
@@ -32,8 +41,6 @@ RUN wget $( \
 		wget https://api.github.com/repos/Genymobile/scrcpy/releases/latest -O - | \
 		jq -r '[ .assets[] | select(.name | startswith("scrcpy-server-v")).browser_download_url ][0]' \
 	) -O /data/scrcpy-server
-
-USER 0
 
 ENV COMPILED_AT=/scrcpymem/x
 ENV USER_NAME=$USER_NAME
@@ -43,9 +50,16 @@ ENV PATH="${PATH}:/home/$USER_NAME"
 COPY --chown="$USER_NAME" 'containerScripts' "/home/$USER_NAME"
 RUN echo "$HIST_COMMAND" >> "/home/$USER_NAME/.bash_history"
 RUN shopt -s dotglob && chmod +x "/home/$USER_NAME/"*.sh
-COPY 'containerScripts' "/root/"
+
+USER 0
+RUN shopt -s dotglob && cp -r "/home/$USER_NAME/"* "/root/"
+
 
 USER $USER_NAME
+
+RUN mkdir -p "/home/$USER_NAME/.gradle/caches";\
+	chmod -R 777 "/home/$USER_NAME/.gradle"; \
+	chown -R "$USER_NAME" "/home/$USER_NAME/.gradle"
 
 SHELL ["/bin/bash", "-ic"]
 ENTRYPOINT ["run.sh"]

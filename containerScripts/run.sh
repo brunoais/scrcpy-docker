@@ -29,11 +29,11 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ $ARG_COMPILE ]] ; then	
-
+	
 	[[ ! -a "$COMPILED_AT" ]] && meson "$COMPILED_AT" --buildtype release --strip -Db_lto=true \
 			$( [[ -z "$COMPILE_SERVER" ]] && echo '-Dprebuilt_server=/data/scrcpy-server' )
 
-	ninja -C"$COMPILED_AT" > /dev/null 2> /dev/null
+	ninja -C"$COMPILED_AT"
 	which "after_compile.sh" > /dev/null && . after_compile.sh
 fi
 
